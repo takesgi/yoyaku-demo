@@ -367,7 +367,11 @@ button.cal-day:hover { border-color: var(--color-navy); }
 .field { margin-bottom: 20px; }
 .field label { display: block; font-weight: bold; margin-bottom: 4px; }
 .field input, .field textarea, .field select {
+  display: block;
   width: 100%;
+  max-width: 100%;
+  min-width: 0;          /* iPhone で入力欄が中身の幅に引っぱられて、はみ出さないように */
+  box-sizing: border-box;
   min-height: var(--tap-height);
   padding: 10px 12px;
   font: inherit;
@@ -377,6 +381,19 @@ button.cal-day:hover { border-color: var(--color-navy); }
   border-radius: var(--radius);
 }
 .field input:focus, .field textarea:focus { border-color: var(--color-navy); }
+
+/* 日付の入力欄：iPhone（Safari）は独自の見た目で幅を決めるので、
+   見た目の指定を外して（appearance: none）ほかの欄と同じ幅・高さにそろえる */
+.field input[type="date"] {
+  -webkit-appearance: none;
+  appearance: none;
+  height: var(--tap-height);
+  line-height: 1.4;
+  text-align: left;
+}
+.field input[type="date"]::-webkit-date-and-time-value { text-align: left; }
+.field-hint { margin: 4px 0 0; color: var(--color-text-sub); font-size: 1rem; }
+.field-hint.is-empty { color: var(--color-navy-dark); font-weight: bold; }
 .field [aria-invalid="true"] { border-color: var(--color-error); }
 .field-error { color: var(--color-error); font-weight: bold; margin: 4px 0 0; }
 .tag-req, .tag-opt {
@@ -509,7 +526,8 @@ body.is-admin .page { max-width: 1040px; }
   border-radius: var(--radius);
   padding: 16px;
 }
-.field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.field-row { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 16px; }
+.field-row > .field { min-width: 0; }
 .block-form .field { margin-bottom: 12px; }
 
 /* スマホでは表を1件ずつのカードにする（横にはみ出さないように） */

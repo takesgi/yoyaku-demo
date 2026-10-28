@@ -116,6 +116,15 @@ const Admin = (function () {
     return html;
   }
 
+  // 日付欄の下の一言。iPhone では選ぶ前の欄が空白に見えるので、何をするかを文字で出す
+  function dateHint(date) {
+    return '<p class="field-hint' + (date ? '' : ' is-empty') + '" id="b-date-hint">' + dateHintText(date) + '</p>';
+  }
+
+  function dateHintText(date) {
+    return date ? '選んだ日：' + fmtDate(date, true) : '日付を選んでください（欄を押すとカレンダーが開きます）';
+  }
+
   function blockTimeText(b) {
     if (b.start === RULES.openTime && b.end === RULES.closeTime) return '終日';
     return fmtTime(b.start) + '〜' + fmtTime(b.end);
@@ -125,7 +134,8 @@ const Admin = (function () {
     const f = state.blockForm;
     const form = '<form id="block-form" class="block-form" novalidate>' +
       '<div class="field"><label for="b-date">日付 <span class="tag-req">必須</span></label>' +
-      '<input id="b-date" name="date" type="date" min="' + today() + '" value="' + esc(f.date) + '"></div>' +
+      '<input id="b-date" name="date" type="date" min="' + today() + '" value="' + esc(f.date) + '" aria-describedby="b-date-hint">' +
+      dateHint(f.date) + '</div>' +
       '<div class="field-row">' +
       '<div class="field"><label for="b-start">始まり</label><select id="b-start" name="start">' + timeOptions(f.start) + '</select></div>' +
       '<div class="field"><label for="b-end">終わり</label><select id="b-end" name="end">' + timeOptions(f.end) + '</select></div>' +
@@ -236,6 +246,12 @@ const Admin = (function () {
   function handleInput(target) {
     if (target.form && target.form.id === 'block-form') {
       state.blockForm[target.name] = target.value;
+      // 日付を選んだら、下の一言もその場で書きかえる（画面全体は描き直さない）
+      if (target.name === 'date') {
+        const hint = document.getElementById('b-date-hint');
+        hint.textContent = dateHintText(target.value);
+        hint.classList.toggle('is-empty', !target.value);
+      }
     }
   }
 
