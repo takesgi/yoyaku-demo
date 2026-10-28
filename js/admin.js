@@ -24,6 +24,7 @@ const Admin = (function () {
     tab: 'list',
     filter: 'week',
     message: '', // 「キャンセルしました」などのお知らせ
+    messageIsWarning: false, // 予約が入っている時間に登録したときなど、目立たせるお知らせか
     blockForm: { date: '', start: RULES.openTime, end: RULES.closeTime, reason: '' },
     blockError: '',
   };
@@ -177,7 +178,7 @@ const Admin = (function () {
         : renderReset();
     return '<h1>教室側（たけさん用）</h1>' +
       '<div class="tabs" role="tablist" aria-label="教室側のメニュー">' + tabs + '</div>' +
-      (state.message ? '<p class="notice-plain" role="status">' + esc(state.message) + '</p>' : '') +
+      (state.message ? '<p class="' + (state.messageIsWarning ? 'notice' : 'notice-plain') + '" role="status">' + esc(state.message) + '</p>' : '') +
       body;
   }
 
@@ -188,12 +189,14 @@ const Admin = (function () {
     if (action === 'admin-tab') {
       state.tab = el.dataset.id;
       state.message = '';
+    state.messageIsWarning = false;
       state.blockError = '';
       return true;
     }
     if (action === 'admin-filter') {
       state.filter = el.dataset.id;
       state.message = '';
+    state.messageIsWarning = false;
       return true;
     }
     if (action === 'admin-cancel') {
@@ -205,6 +208,7 @@ const Admin = (function () {
       Store.cancelBooking(records, b.id);
       Store.save(records);
       state.message = b.id + ' をキャンセルしました。';
+      state.messageIsWarning = false;
       return true;
     }
     if (action === 'admin-remove-block') {
@@ -215,12 +219,14 @@ const Admin = (function () {
       Store.removeBlock(records, b.id);
       Store.save(records);
       state.message = fmtDate(b.date) + ' ' + blockTimeText(b) + ' を削除しました。';
+      state.messageIsWarning = false;
       return true;
     }
     if (action === 'admin-reset') {
       if (!window.confirm('保存してある予約を全部消して、最初の見本の状態に戻します。よろしいですか？')) return false;
       Store.reset(now());
       state.message = '見本を最初の状態に戻しました。';
+      state.messageIsWarning = false;
       return true;
     }
     return false;
@@ -238,16 +244,25 @@ const Admin = (function () {
     if (form.id !== 'block-form') return false;
     const f = state.blockForm;
     state.message = '';
+    state.messageIsWarning = false;
     if (!f.date) {
       state.blockError = '日付を選んでください';
     } else if (f.start >= f.end) {
       state.blockError = '終わりの時刻は、始まりより後にしてください';
     } else {
       const records = Store.load(now());
-      const added = Store.addBlock(records, f);
+      // 予約が入っている時間でも登録はできる。予約は消さずに残し、件数を知らせる
+      const count = Availability.bookingsOverlapping(records, f.date, f.start, f.end).length;
+      const when = fmtDate(f.date) + ' ' + blockTimeText(f);
+      if (count > 0 && !window.confirm(when + ' に予約が' + count + '件あります。\n登録しても予約は消えません（必要ならお客様へご連絡ください）。\n登録しますか？')) {
+        return true;
+      }
+      Store.addBlock(records, f);
       Store.save(records);
       state.blockError = '';
-      state.message = fmtDate(added.date) + ' ' + blockTimeText(added) + ' を登録しました。';
+      state.message = when + ' を登録しました。' +
+        (count > 0 ? 'この時間に予約が' + count + '件あります（予約は残っています）。' : '');
+      state.messageIsWarning = count > 0;
       state.blockForm = { date: '', start: RULES.openTime, end: RULES.closeTime, reason: '' };
     }
     return true;

@@ -6,7 +6,7 @@
 
 // データの版番号。中身を変えたら 1 つ上げる。
 // 上げると、ブラウザに保存してある見本データが作り直される。
-const DATA_VERSION = 2;
+const DATA_VERSION = 3;
 
 // 教室の情報（トップ画面で使う）
 const SCHOOL = {
@@ -196,7 +196,7 @@ const SEED_BOOKINGS = [
   { businessDay: 1, start: '10:00', courseId: 'beginner', placeId: 'office', name: '山田 花子（見本）', phone: '090-0000-0001', email: 'yamada@example.com', note: '' },
   { businessDay: 1, start: '14:00', courseId: 'advanced', placeId: 'visit', name: '佐藤 一郎（見本）', phone: '090-0000-0002', email: 'sato@example.com', note: 'お店のSNSを自動で投稿したいです' },
   { businessDay: 2, start: '09:30', courseId: 'intermediate', placeId: 'online', name: '鈴木 美咲（見本）', phone: '090-0000-0003', email: 'suzuki@example.com', note: '' },
-  { businessDay: 3, start: '13:00', courseId: 'free', placeId: 'office', name: '田中 健太（見本）', phone: '090-0000-0004', email: 'tanaka@example.com', note: '何から始めればよいか相談したいです' },
+  { businessDay: 3, start: '13:00', courseId: 'free', placeId: 'visit', name: '田中 健太（見本）', phone: '090-0000-0004', email: 'tanaka@example.com', note: '何から始めればよいか相談したいです' },
   { businessDay: 4, start: '10:00', courseId: 'master', placeId: 'online', name: '高橋 由美（見本）', phone: '090-0000-0005', email: 'takahashi@example.com', note: '' },
   { businessDay: 5, start: '15:00', courseId: 'beginner', placeId: 'visit', name: '伊藤 和夫（見本）', phone: '090-0000-0006', email: 'ito@example.com', note: 'エクセルの表の作り方を教えてください' },
   { businessDay: 8, start: '11:00', courseId: 'intermediate', placeId: 'office', name: '渡辺 恵子（見本）', phone: '090-0000-0007', email: 'watanabe@example.com', note: '' },

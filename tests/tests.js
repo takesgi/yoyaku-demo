@@ -290,6 +290,18 @@ test('教室側で受けない時間を登録すると×になり、削除する
   assertEqual(day({ ...OFFICE, date: '2026-11-12', records }, NOW).mark, '○', '削除のあと');
 });
 
+test('受けない時間に重なる予約を数える（キャンセル済みは数えない）', () => {
+  const records = emptyRecords();
+  records.bookings.push(booking('2026-11-12', '10:00', 'beginner', 'office'));
+  records.bookings.push(booking('2026-11-12', '14:00', 'beginner', 'online'));
+  const c = booking('2026-11-12', '11:00', 'beginner', 'office');
+  c.status = 'cancelled';
+  records.bookings.push(c);
+  assertEqual(Availability.bookingsOverlapping(records, '2026-11-12', '09:00', '12:00').length, 1, '午前');
+  assertEqual(Availability.bookingsOverlapping(records, '2026-11-12', '09:00', '18:00').length, 2, '終日');
+  assertEqual(Availability.bookingsOverlapping(records, '2026-11-12', '11:00', '14:00').length, 0, '11:00〜14:00');
+});
+
 // ---------- 結果を画面に出す ----------
 
 const list = document.getElementById('results');

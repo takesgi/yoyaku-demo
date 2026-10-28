@@ -250,7 +250,7 @@ const App = (function () {
     return stepHead('date') +
       earliest +
       '<p class="sub">または、カレンダーから日付を選んでください。</p>' +
-      '<p class="legend"><span class="mark-ok">○ 空きあり</span><span class="mark-few">△ 残りわずか</span><span class="mark-none-text">× 満席・休み</span></p>' +
+      '<p class="legend"><span class="mark-ok"><span class="ring" aria-hidden="true"></span> 空きあり</span><span class="mark-few">△ 残りわずか</span><span class="mark-none-text">× 満席・休み</span></p>' +
       '<div class="cal-nav">' +
       '<button type="button" class="btn-month" data-action="prev-month"' + prevDisabled + '>‹ 前の月</button>' +
       '<h2 class="cal-title">' + y + '年' + m + '月</h2>' +
@@ -601,6 +601,11 @@ const App = (function () {
     document.addEventListener('input', onInput);
     document.addEventListener('submit', onSubmit);
     window.addEventListener('resize', renderSummary);
+    // スマホで文字を入れている間は、下の帯を隠す（キーボードと帯で入力欄が見えなくならないように）
+    document.addEventListener('focusin', (e) => {
+      if (e.target.matches('input, textarea, select')) document.body.classList.add('is-typing');
+    });
+    document.addEventListener('focusout', () => document.body.classList.remove('is-typing'));
     history.replaceState({ step: 'top' }, '', location.pathname);
     render();
   }

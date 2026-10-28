@@ -304,6 +304,19 @@ button.cal-day:hover { border-color: var(--color-navy); }
 .cal-num { font-size: 1rem; font-weight: bold; }
 .cal-mark { font-size: 1.1rem; font-weight: bold; }
 .mark-ok, .mark-ok .cal-mark { color: var(--color-navy); }
+/* ○ は文字の形が小さく見えるので、△・× と同じくらいの大きさの輪を線で描く（文字は読み上げ用に残す） */
+.mark-ok .cal-mark, .ring {
+  display: inline-block;
+  width: 0.95em;
+  height: 0.95em;
+  margin: 0.15em 0;
+  border: 2.5px solid var(--color-navy);
+  border-radius: 50%;
+  font-size: 1rem;
+  color: transparent;
+  overflow: hidden;
+  vertical-align: middle;
+}
 .mark-few, .mark-few .cal-mark { color: var(--color-few); }
 .cal-day.mark-none { background: var(--color-none-bg); border-color: var(--color-none-bg); color: var(--color-none-text); }
 .mark-none-text { color: var(--color-none-text); }
@@ -490,6 +503,7 @@ body.is-admin .page { max-width: 1040px; }
 .btn-small { min-height: var(--tap-height); padding: 6px 16px; }
 
 .block-form {
+  max-width: 640px;
   background: var(--color-surface);
   border: 1px solid var(--color-border);
   border-radius: var(--radius);
@@ -530,6 +544,11 @@ body.is-admin .page { max-width: 1040px; }
 .summary-list > div { display: flex; gap: 8px; min-width: 0; }
 .summary-list dt { flex: none; opacity: 0.85; }
 .summary-list dd { margin: 0; font-weight: bold; min-width: 0; overflow-wrap: anywhere; }
+
+/* スマホで文字を入れている間は帯を隠す（js/app.js が is-typing をつける） */
+@media (max-width: 959px) {
+  body.is-typing .summary { display: none; }
+}
 
 /* パソコン・タブレット：本文の右に並べる */
 @media (min-width: 960px) {
