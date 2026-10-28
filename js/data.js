@@ -81,7 +81,7 @@ const PLACES = [
   {
     id: 'office',
     name: '事務所',
-    detail: '兵庫県豊岡市日高町野々庄211',
+    detail: '兵庫県豊岡市日高町野々庄210',
     parkingText: '駐車場は事務所前に4台あります', // 2026-10-28 たけさん
     bufferMinutes: 0,
   },
