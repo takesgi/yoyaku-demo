@@ -59,8 +59,28 @@ a { color: var(--color-navy); }
 .site-header {
   background: var(--color-navy);
   color: #fff;
-  padding: 12px 16px;
+  padding: 8px 16px;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 4px 16px;
 }
+
+/* お客さん側・教室側の切り替え */
+.mode-switch { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 8px; }
+.mode-btn {
+  min-height: var(--tap-height);
+  padding: 6px 14px;
+  border: 2px solid #fff;
+  border-radius: var(--radius);
+  background: transparent;
+  color: #fff;
+  font-weight: bold;
+  cursor: pointer;
+}
+.mode-btn[aria-pressed="true"] { background: #fff; color: var(--color-navy-dark); }
+.mode-note { font-size: 0.9rem; }
 
 .site-name {
   margin: 0;
@@ -333,7 +353,7 @@ button.cal-day:hover { border-color: var(--color-navy); }
 /* ---------- ⑤ 入力 ---------- */
 .field { margin-bottom: 20px; }
 .field label { display: block; font-weight: bold; margin-bottom: 4px; }
-.field input, .field textarea {
+.field input, .field textarea, .field select {
   width: 100%;
   min-height: var(--tap-height);
   padding: 10px 12px;
@@ -423,6 +443,73 @@ button.cal-day:hover { border-color: var(--color-navy); }
   padding: 16px;
 }
 
+/* ---------- 教室側 ---------- */
+body.is-admin .page { max-width: 1040px; }
+
+.tabs { display: flex; flex-wrap: wrap; gap: 8px; margin: 8px 0 20px; border-bottom: 2px solid var(--color-navy); }
+.tab-btn {
+  min-height: var(--tap-height);
+  padding: 8px 16px;
+  border: 2px solid var(--color-navy);
+  border-bottom: none;
+  border-radius: var(--radius) var(--radius) 0 0;
+  background: var(--color-surface);
+  color: var(--color-navy);
+  font-weight: bold;
+  cursor: pointer;
+  margin-bottom: -2px;
+}
+.tab-btn[aria-selected="true"] { background: var(--color-navy); color: #fff; }
+
+.filters { display: flex; flex-wrap: wrap; gap: 8px; }
+.filter-btn {
+  min-height: var(--tap-height);
+  min-width: 88px;
+  padding: 8px 16px;
+  border: 2px solid var(--color-navy);
+  border-radius: var(--radius);
+  background: var(--color-surface);
+  color: var(--color-navy);
+  font-weight: bold;
+  cursor: pointer;
+}
+.filter-btn[aria-pressed="true"] { background: var(--color-navy-light); box-shadow: inset 0 -4px 0 var(--color-navy); }
+.period { margin: 12px 0; font-weight: bold; }
+.empty { padding: 16px; background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius); }
+
+.admin-table { width: 100%; border-collapse: collapse; background: var(--color-surface); }
+.admin-table th, .admin-table td {
+  border-bottom: 1px solid var(--color-border);
+  padding: 10px 12px;
+  text-align: left;
+  vertical-align: middle;
+}
+.admin-table thead th { background: var(--color-navy-light); color: var(--color-navy-dark); white-space: nowrap; }
+.admin-table tr.is-cancelled td { color: var(--color-none-text); background: var(--color-none-bg); }
+.status-cancelled { font-weight: bold; }
+.btn-small { min-height: var(--tap-height); padding: 6px 16px; }
+
+.block-form {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  padding: 16px;
+}
+.field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.block-form .field { margin-bottom: 12px; }
+
+/* スマホでは表を1件ずつのカードにする（横にはみ出さないように） */
+@media (max-width: 699px) {
+  .tabs { border-bottom: none; }
+  .tab-btn { border-bottom: 2px solid var(--color-navy); border-radius: var(--radius); margin-bottom: 0; }
+  .admin-table thead { display: none; }
+  .admin-table, .admin-table tbody, .admin-table tr, .admin-table td { display: block; width: 100%; }
+  .admin-table tr { border: 1px solid var(--color-border); border-radius: var(--radius); margin-bottom: 12px; padding: 4px 0; background: var(--color-surface); }
+  .admin-table td { border-bottom: none; padding: 4px 16px; display: grid; grid-template-columns: 6em 1fr; gap: 8px; }
+  .admin-table td::before { content: attr(data-label); font-weight: bold; color: var(--color-navy-dark); }
+  .admin-table { background: transparent; }
+}
+
 /* ---------- 選んだ内容（スマホは下に固定の帯） ---------- */
 .summary {
   position: fixed;
@@ -454,6 +541,7 @@ button.cal-day:hover { border-color: var(--color-navy); }
     padding: 0 24px;
   }
   .layout.no-summary { grid-template-columns: minmax(0, 720px); }
+  body.is-admin .layout.no-summary { grid-template-columns: minmax(0, 1040px); }
   .layout > .page { margin: 0; padding-left: 0; padding-right: 0; width: 100%; }
   .summary {
     position: sticky;

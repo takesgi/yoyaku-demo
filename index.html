@@ -12,6 +12,12 @@
 
   <header class="site-header">
     <p class="site-name" id="site-name"></p>
+    <!-- お客さん側と教室側の切り替え（見本なのでログインはなし） -->
+    <nav class="mode-switch" aria-label="画面の切り替え">
+      <button type="button" class="mode-btn" data-action="mode-customer" id="mode-customer">お客さん側</button>
+      <button type="button" class="mode-btn" data-action="mode-admin" id="mode-admin">教室側</button>
+      <span class="mode-note">見本のため誰でも見られます</span>
+    </nav>
   </header>
 
   <div class="layout">
@@ -21,11 +27,13 @@
     <aside class="summary" id="summary" aria-label="選んだ内容" hidden></aside>
   </div>
 
-  <!-- 読みこむ順番に意味がある：データ → 計算 → 保存 → 画面 -->
+  <!-- 読みこむ順番に意味がある：データ → 計算 → 保存 → 書き方 → 教室側の画面 → 画面全体 -->
   <script src="js/data.js"></script>
   <script src="js/availability.js"></script>
   <script src="js/price.js"></script>
   <script src="js/store.js"></script>
+  <script src="js/format.js"></script>
+  <script src="js/admin.js"></script>
   <script src="js/app.js"></script>
 </body>
 </html>

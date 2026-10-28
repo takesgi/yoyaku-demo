@@ -2,6 +2,9 @@
 // js/store.js — 予約をブラウザの中（localStorage）に保存する
 // 見本なので、どこにも送信しない。このブラウザの中だけに残る。
 //
+// 予約の確定・キャンセル・受けない時間の登録は、records を書きかえるだけ。
+// 保存は呼んだ側で save(records) する（テストが本物の保存データを書きかえないように）。
+//
 // 保存するもの（records）：
 //   { version, bookings: [予約…], blocks: [予約を受けない時間…] }
 // =============================================================
@@ -112,5 +115,25 @@ const Store = (function () {
     return { ok: true, booking };
   }
 
-  return { load, save, reset, seed, nextBookingNumber, addBooking };
+  // 予約をキャンセルする（消さずに status を 'cancelled' にする。一覧に残して経緯がわかるように）
+  function cancelBooking(records, id) {
+    const booking = records.bookings.find((b) => b.id === id);
+    if (booking) booking.status = 'cancelled';
+    return booking || null;
+  }
+
+  // 予約を受けない時間を登録する：{ date, start, end, reason }
+  function addBlock(records, block) {
+    const used = records.blocks.map((b) => Number(b.id.replace('block-', '')) || 0);
+    const id = 'block-' + (Math.max(0, ...used) + 1);
+    const added = { id, date: block.date, start: block.start, end: block.end, reason: block.reason || '' };
+    records.blocks.push(added);
+    return added;
+  }
+
+  function removeBlock(records, id) {
+    records.blocks = records.blocks.filter((b) => b.id !== id);
+  }
+
+  return { load, save, reset, seed, nextBookingNumber, addBooking, cancelBooking, addBlock, removeBlock };
 })();

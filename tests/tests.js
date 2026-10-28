@@ -272,6 +272,24 @@ test('見本データ：これから2週間に6〜8件、受けない時間2件�
   });
 });
 
+test('教室側でキャンセルすると、その枠がお客さん側でまた選べる', () => {
+  const records = emptyRecords();
+  const draft = { date: '2026-11-13', start: '10:00', courseId: 'beginner', placeId: 'office', name: 'a', phone: '', email: '' };
+  const r = Store.addBooking(records, draft, NOW);
+  assertEqual(Availability.isStillAvailable(draft, NOW, records), false, '予約のあと');
+  Store.cancelBooking(records, r.booking.id);
+  assertEqual(records.bookings[0].status, 'cancelled', '状態');
+  assertEqual(Availability.isStillAvailable(draft, NOW, records), true, 'キャンセルのあと');
+});
+
+test('教室側で受けない時間を登録すると×になり、削除すると空く', () => {
+  const records = emptyRecords();
+  const added = Store.addBlock(records, { date: '2026-11-12', start: '09:00', end: '18:00', reason: '出張のため' });
+  assertEqual(day({ ...OFFICE, date: '2026-11-12', records }, NOW).mark, '×', '登録のあと');
+  Store.removeBlock(records, added.id);
+  assertEqual(day({ ...OFFICE, date: '2026-11-12', records }, NOW).mark, '○', '削除のあと');
+});
+
 // ---------- 結果を画面に出す ----------
 
 const list = document.getElementById('results');

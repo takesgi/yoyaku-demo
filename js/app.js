@@ -1,5 +1,5 @@
 // =============================================================
-// js/app.js — お客さん側の画面（トップ・①〜⑦）
+// js/app.js — お客さん側の画面（トップ・①〜⑦）と、教室側との切り替え
 //
 // しくみ：
 //   - いまの画面と、選んだ内容は state にまとめて持つ
@@ -20,6 +20,7 @@ const App = (function () {
     info: 'お客様情報',
     confirm: '予約内容の確認',
     done: 'ご予約を受け付けました',
+    admin: '教室側',
   };
 
   const state = {
@@ -40,28 +41,8 @@ const App = (function () {
 
   // ---------- 小さな道具 ----------
 
-  // 入力された文字をそのまま画面に出すときは、必ずこれを通す
-  function esc(text) {
-    return String(text)
-      .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
-      .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
-  }
-
-  // '09:00' → '9:00'
-  function fmtTime(time) {
-    return time.replace(/^0/, '');
-  }
-
-  // '2026-11-05' → '11月5日（木）'（withYear なら '2026年11月5日（木）'）
-  function fmtDate(date, withYear) {
-    const [y, m, d] = date.split('-').map(Number);
-    const w = '日月火水木金土'[Availability.weekday(date)];
-    return (withYear ? y + '年' : '') + m + '月' + d + '日（' + w + '）';
-  }
-
-  function fmtSlot(date, start, end, withYear) {
-    return fmtDate(date, withYear) + ' ' + fmtTime(start) + '〜' + fmtTime(end);
-  }
+  // 書き方の道具は js/format.js（教室側と共通）
+  const { esc, fmtTime, fmtDate, fmtSlot, placeDetail } = Format;
 
   function course() { return state.courseId ? Availability.findCourse(state.courseId) : null; }
   function place() { return state.placeId ? Availability.findPlace(state.placeId) : null; }
@@ -89,6 +70,7 @@ const App = (function () {
   // 選んでいないものがあるのに先の画面へ来たら、選べる画面まで戻す
   function reachableStep(step) {
     if (step === 'done') return state.booking ? 'done' : 'top';
+    if (step === 'admin') return 'admin';
     const needs = {
       top: true,
       course: true,
@@ -141,11 +123,6 @@ const App = (function () {
 
   function strongNotice() {
     return '<p class="demo-notice-strong">' + DEMO_NOTICE + '</p>';
-  }
-
-  // 場所の説明（出張は出張費の文も）
-  function placeDetail(p) {
-    return esc(p.detail) + (p.feeText ? '<br>' + esc(p.feeText) : '');
   }
 
   // ---------- トップ ----------
@@ -411,8 +388,7 @@ const App = (function () {
   // ---------- ⑦ 完了 ----------
 
   function placeGuide(p) {
-    if (p.id === 'office') return '事務所：' + esc(p.detail);
-    return esc(p.detail) + (p.feeText ? '<br>' + esc(p.feeText) : '');
+    return (p.id === 'office' ? '事務所：' : '') + placeDetail(p);
   }
 
   function emailText(b) {
@@ -435,6 +411,7 @@ const App = (function () {
       p.name + '：' + p.detail,
     ];
     if (p.feeText) lines.push(p.feeText);
+    if (p.parkingText) lines.push(p.parkingText);
     lines.push(
       '■受講料',
       Price.formatCourse(c),
@@ -508,10 +485,16 @@ const App = (function () {
     info: renderInfo,
     confirm: renderConfirm,
     done: renderDone,
+    admin: () => Admin.render(), // 教室側の中身は js/admin.js
   };
 
   function render() {
     appEl.innerHTML = RENDERERS[state.step]();
+    // 画面上部の切り替えボタン：いまどちらを見ているか
+    const isAdmin = state.step === 'admin';
+    document.body.classList.toggle('is-admin', isAdmin);
+    document.getElementById('mode-customer').setAttribute('aria-pressed', String(!isAdmin));
+    document.getElementById('mode-admin').setAttribute('aria-pressed', String(isAdmin));
     document.title = (state.step === 'top' ? '' : STEP_TITLES[state.step] + ' — ') + SCHOOL.name + ' レッスン予約（見本）';
     renderSummary();
   }
@@ -523,7 +506,10 @@ const App = (function () {
     if (!el || el.disabled) return;
     const action = el.dataset.action;
 
-    if (action === 'back') back();
+    if (action === 'mode-customer') { if (state.step === 'admin') go('top'); }
+    else if (action === 'mode-admin') { if (state.step !== 'admin') go('admin'); }
+    else if (action.startsWith('admin-')) { if (Admin.handleClick(action, el)) render(); }
+    else if (action === 'back') back();
     else if (action === 'start') { resetDraft(); go('course'); }
     else if (action === 'select-course') {
       if (state.courseId !== el.dataset.id) { state.date = null; state.start = null; }
@@ -581,12 +567,18 @@ const App = (function () {
 
   // 入力するたびに state に写しておく（戻っても消えないように）
   function onInput(e) {
+    Admin.handleInput(e.target);
     if (e.target.form && e.target.form.id === 'info-form') {
       state.info[e.target.name] = e.target.value;
     }
   }
 
   function onSubmit(e) {
+    if (Admin.handleSubmit(e.target)) {
+      e.preventDefault();
+      render();
+      return;
+    }
     if (e.target.id !== 'info-form') return;
     e.preventDefault();
     state.errors = validate(state.info);
