@@ -64,15 +64,38 @@ test('祝日が×になる（2026-11-23 勤労感謝の日・月曜）', () => {
   assertEqual(d.holidayName, '勤労感謝の日', '祝日の名前');
 });
 
-test('前日18時までなら翌日が選べる（11-04 17:59 → 11-05）', () => {
+test('前の営業日の18時までなら選べる（11-04 水 17:59 → 11-05 木）', () => {
   const d = day({ ...OFFICE, date: '2026-11-05', records: emptyRecords() }, jst('2026-11-04 17:59'));
   assertEqual(d.mark, '○', '翌日の印');
 });
 
-test('前日18時を過ぎると翌日が選べない（11-04 18:01 → 11-05）', () => {
+test('前の営業日の18時を過ぎると選べない（11-04 水 18:01 → 11-05 木）', () => {
   const d = day({ ...OFFICE, date: '2026-11-05', records: emptyRecords() }, jst('2026-11-04 18:01'));
   assertEqual(d.mark, '×', '翌日の印');
   assertEqual(d.reasonText, '締め切り後', '翌日の理由');
+});
+
+test('月曜の締め切りは、土日をまたいで金曜の18時（11-09 月 → 11-06 金）', () => {
+  const fri = day({ ...OFFICE, date: '2026-11-09', records: emptyRecords() }, jst('2026-11-06 17:59'));
+  const sat = day({ ...OFFICE, date: '2026-11-09', records: emptyRecords() }, jst('2026-11-07 10:00'));
+  assertEqual(fri.mark, '○', '金曜 17:59');
+  assertEqual(sat.reasonText, '締め切り後', '土曜 10:00');
+});
+
+test('祝日の次の日の締め切りは、祝日の前の営業日（11-24 火 → 11-20 金）', () => {
+  assertEqual(Availability.deadlineDateOf('2026-11-24'), '2026-11-20', '締め切りの日');
+  const sun = day({ ...OFFICE, date: '2026-11-24', records: emptyRecords() }, jst('2026-11-22 10:00'));
+  assertEqual(sun.reasonText, '締め切り後', '日曜 10:00');
+});
+
+test('年末年始（12/29〜1/3）は休み。1/4 の締め切りは 12/28 の18時', () => {
+  const now = jst('2026-12-01 10:00');
+  ['2026-12-29', '2026-12-31', '2027-01-03'].forEach((date) => {
+    const d = day({ ...OFFICE, date, records: emptyRecords() }, now);
+    assertEqual(d.reasonText, '休み', date);
+  });
+  assertEqual(day({ ...OFFICE, date: '2026-12-28', records: emptyRecords() }, now).mark, '○', '12-28');
+  assertEqual(Availability.deadlineDateOf('2027-01-04'), '2026-12-28', '1/4 の締め切りの日');
 });
 
 test('出張の予約の前後60分に、別の予約が入らない', () => {
@@ -112,6 +135,17 @@ test('予約を受けない時間が×になる（午前だけ）', () => {
   assertEqual(slotAt(d, '09:00').reasonText, '受けない時間', '09:00');
   assertEqual(slotAt(d, '11:30').reasonText, '受けない時間', '11:30（12:30まで）');
   assertEqual(slotAt(d, '12:00').available, true, '12:00');
+});
+
+test('出張の予約だけは、受けない時間の前後60分もあける', () => {
+  const records = emptyRecords();
+  records.blocks.push({ id: 'b1', date: '2026-11-11', start: '09:00', end: '12:00', reason: '議会のため' });
+  const visit = day({ courseId: 'beginner', placeId: 'visit', date: '2026-11-11', records }, NOW);
+  assertEqual(slotAt(visit, '12:00').reasonText, '移動時間', '出張 12:00');
+  assertEqual(slotAt(visit, '12:30').reasonText, '移動時間', '出張 12:30');
+  assertEqual(slotAt(visit, '13:00').available, true, '出張 13:00');
+  const online = day({ courseId: 'beginner', placeId: 'online', date: '2026-11-11', records }, NOW);
+  assertEqual(slotAt(online, '12:00').available, true, 'オンライン 12:00');
 });
 
 test('予約を受けない時間が終日なら、その日が×になる', () => {

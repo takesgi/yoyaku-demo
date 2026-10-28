@@ -7,7 +7,7 @@
 //
 // 日付は 'YYYY-MM-DD'、時刻は 'HH:MM' の文字列で、すべて日本時間。
 // 「今の日時」は必ず引数で受け取る（テストで好きな日時にできるように）。
-// 使うデータ：js/data.js（RULES・COURSES・PLACES・HOLIDAYS・REASONS）
+// 使うデータ：js/data.js（RULES・COURSES・PLACES・HOLIDAYS・CLOSED_PERIODS・REASONS）
 // =============================================================
 
 const Availability = (function () {
@@ -70,21 +70,26 @@ const Availability = (function () {
     return dateToNumber(date) + (toMinutes(time) - RULES.utcOffsetMinutes) * MS_PER_MINUTE;
   }
 
+  // 祝日・お休みの期間なら、その名前つきで返す
   function holidayOf(date) {
-    return HOLIDAYS.find((h) => h.date === date) || null;
+    const holiday = HOLIDAYS.find((h) => h.date === date);
+    if (holiday) return holiday;
+    const period = CLOSED_PERIODS.find((p) => p.from <= date && date <= p.to);
+    return period ? { date, name: period.name } : null;
   }
 
-  // 予約を受ける日か（平日で、祝日でない）
+  // 予約を受ける日か（平日で、祝日・お休みでない）
   function isOpenDay(date) {
     return RULES.openWeekdays.includes(weekday(date)) && !holidayOf(date);
   }
 
-  // date から数えて n 営業日目の日付（n=1 なら次の営業日）
+  // date から数えて n 営業日目の日付（n=1 なら次の営業日、n=-1 なら前の営業日）
   function addBusinessDays(date, n) {
+    const step = n > 0 ? 1 : -1;
     let d = date;
     let count = 0;
-    while (count < n) {
-      d = addDays(d, 1);
+    while (count < Math.abs(n)) {
+      d = addDays(d, step);
       if (isOpenDay(d)) count++;
     }
     return d;
@@ -92,9 +97,13 @@ const Availability = (function () {
 
   // ---------- きまりごとの判定 ----------
 
-  // 受付の締め切りを過ぎたか（前日の18:00まで）
+  // 受付の締め切りを過ぎたか（前の営業日の18:00まで。土日祝をまたぐときも営業日で数える）
+  function deadlineDateOf(date) {
+    return addBusinessDays(date, -RULES.deadlineBusinessDaysBefore);
+  }
+
   function isPastDeadline(date, now) {
-    const deadlineDate = addDays(date, -RULES.deadlineDaysBefore);
+    const deadlineDate = deadlineDateOf(date);
     return now.getTime() > japanTimeToMs(deadlineDate, RULES.deadlineTime);
   }
 
@@ -135,8 +144,9 @@ const Availability = (function () {
     if (isTooFar(date, now)) return 'outOfRange';
     if (isPastDeadline(date, now)) return 'deadline';
 
-    const blocked = records.blocks.some((b) =>
-      b.date === date && overlaps(start, end, toMinutes(b.start), toMinutes(b.end)));
+    const dayBlocks = records.blocks.filter((b) => b.date === date);
+    const blocked = dayBlocks.some((b) =>
+      overlaps(start, end, toMinutes(b.start), toMinutes(b.end)));
     if (blocked) return 'blocked';
 
     const sameDay = records.bookings.filter((b) => b.date === date && b.status !== 'cancelled');
@@ -152,6 +162,11 @@ const Availability = (function () {
       return overlaps(start - gap, end + gap, toMinutes(b.start), toMinutes(b.end));
     });
     if (tooClose) return 'travel';
+
+    // 出張の予約だけは、受けない時間（議会など）との前後にも移動時間をあける
+    const tooCloseToBlock = place.bufferMinutes > 0 && dayBlocks.some((b) =>
+      overlaps(start - place.bufferMinutes, end + place.bufferMinutes, toMinutes(b.start), toMinutes(b.end)));
+    if (tooCloseToBlock) return 'travel';
 
     return null;
   }
@@ -268,6 +283,7 @@ const Availability = (function () {
     nowInJapan,
     isOpenDay,
     addBusinessDays,
+    deadlineDateOf,
     findCourse,
     findPlace,
   };
