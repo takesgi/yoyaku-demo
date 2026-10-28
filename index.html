@@ -14,8 +14,12 @@
     <p class="site-name" id="site-name"></p>
   </header>
 
-  <!-- 画面はここに js/app.js が描く -->
-  <main class="page" id="app"></main>
+  <div class="layout">
+    <!-- 画面はここに js/app.js が描く -->
+    <main class="page" id="app"></main>
+    <!-- 選んだ内容と金額・時間（スマホは下に固定の帯、パソコンは右側） -->
+    <aside class="summary" id="summary" aria-label="選んだ内容" hidden></aside>
+  </div>
 
   <!-- 読みこむ順番に意味がある：データ → 計算 → 保存 → 画面 -->
   <script src="js/data.js"></script>
