@@ -132,7 +132,7 @@ const Admin = (function () {
       '</div>' +
       '<p class="sub">' + fmtTime(RULES.openTime) + '〜' + fmtTime(RULES.closeTime) + 'を選ぶと「終日」になります。</p>' +
       '<div class="field"><label for="b-reason">理由 <span class="tag-opt">任意</span></label>' +
-      '<input id="b-reason" name="reason" type="text" placeholder="例：議会のため" value="' + esc(f.reason) + '"></div>' +
+      '<input id="b-reason" name="reason" type="text" placeholder="例：所用のため" value="' + esc(f.reason) + '"></div>' +
       (state.blockError ? '<p class="field-error" role="alert">' + esc(state.blockError) + '</p>' : '') +
       '<div class="actions"><button type="submit" class="btn btn-primary">受けない時間として登録する</button></div>' +
       '</form>';
@@ -153,7 +153,7 @@ const Admin = (function () {
         '</tbody></table>';
     }
 
-    return '<p>議会・出張などで予約を受けない日時を登録します。登録した時間は、お客さん側で×になります。</p>' +
+    return '<p>所用・出張などで予約を受けない日時を登録します。登録した時間は、お客さん側で×になります。</p>' +
       form +
       '<h2 class="section">登録してある時間</h2>' + list;
   }

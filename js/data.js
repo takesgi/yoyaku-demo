@@ -6,7 +6,7 @@
 
 // データの版番号。中身を変えたら 1 つ上げる。
 // 上げると、ブラウザに保存してある見本データが作り直される。
-const DATA_VERSION = 3;
+const DATA_VERSION = 4;
 
 // 教室の情報（トップ画面で使う）
 const SCHOOL = {
@@ -89,7 +89,7 @@ const PLACES = [
     id: 'visit',
     name: '出張',
     detail: '但馬圏内のご自宅・事業所へうかがいます。',
-    // 出張費の金額は、決め方をたけさんが検討中のため画面に出さない（2026-10-28）
+    // 出張費の金額は画面に出さない
     feeText: '出張費：豊岡市内は無料。豊岡市外の但馬圏内は別途（金額はご予約後にご案内します）',
     bufferMinutes: 60,
   },
@@ -204,6 +204,6 @@ const SEED_BOOKINGS = [
 ];
 
 const SEED_BLOCKS = [
-  { businessDay: 3, start: '09:00', end: '12:00', reason: '議会のため' },
+  { businessDay: 3, start: '09:00', end: '12:00', reason: '所用のため' },
   { businessDay: 6, start: '09:00', end: '18:00', reason: '出張のため' },
 ];

@@ -163,7 +163,7 @@ const Availability = (function () {
     });
     if (tooClose) return 'travel';
 
-    // 出張の予約だけは、受けない時間（議会など）との前後にも移動時間をあける
+    // 出張の予約だけは、受けない時間（所用など）との前後にも移動時間をあける
     const tooCloseToBlock = place.bufferMinutes > 0 && dayBlocks.some((b) =>
       overlaps(start - place.bufferMinutes, end + place.bufferMinutes, toMinutes(b.start), toMinutes(b.end)));
     if (tooCloseToBlock) return 'travel';

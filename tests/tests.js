@@ -130,7 +130,7 @@ test('事務所どうしなら、続けて予約できる', () => {
 
 test('予約を受けない時間が×になる（午前だけ）', () => {
   const records = emptyRecords();
-  records.blocks.push({ id: 'b1', date: '2026-11-11', start: '09:00', end: '12:00', reason: '議会のため' });
+  records.blocks.push({ id: 'b1', date: '2026-11-11', start: '09:00', end: '12:00', reason: '所用のため' });
   const d = day({ ...OFFICE, date: '2026-11-11', records }, NOW);
   assertEqual(slotAt(d, '09:00').reasonText, '受けない時間', '09:00');
   assertEqual(slotAt(d, '11:30').reasonText, '受けない時間', '11:30（12:30まで）');
@@ -139,7 +139,7 @@ test('予約を受けない時間が×になる（午前だけ）', () => {
 
 test('出張の予約だけは、受けない時間の前後60分もあける', () => {
   const records = emptyRecords();
-  records.blocks.push({ id: 'b1', date: '2026-11-11', start: '09:00', end: '12:00', reason: '議会のため' });
+  records.blocks.push({ id: 'b1', date: '2026-11-11', start: '09:00', end: '12:00', reason: '所用のため' });
   const visit = day({ courseId: 'beginner', placeId: 'visit', date: '2026-11-11', records }, NOW);
   assertEqual(slotAt(visit, '12:00').reasonText, '移動時間', '出張 12:00');
   assertEqual(slotAt(visit, '12:30').reasonText, '移動時間', '出張 12:30');
