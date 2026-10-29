@@ -6,6 +6,7 @@
 //   - render() が state を見て画面を丸ごと描き直す
 //   - ボタンには data-action をつけ、クリックは1か所（onClick）で受ける
 // 空きの計算は ShopAvailability、金額は ShopPrice、保存は ShopStore にまかせる
+// お店側の画面（予約一覧・受けない時間・設定・リセット）の中身は shop/js/admin.js
 //
 // 手順：飲食店＝コース → 人数と席 → 日付 → 時間 → お客様情報 → 確認 → 完了
 //       サロン＝メニュー → 担当 → 日付 → 時間 → お客様情報 → 確認 → 完了
@@ -40,6 +41,7 @@ const ShopApp = (function () {
   function steps() { return SHOP_STEPS[shop().type]; }
   function stepTitle(id) {
     if (id === 'done') return 'ご予約を受け付けました';
+    if (id === 'admin') return 'お店側';
     const s = steps().find((x) => x.id === id);
     return s ? s.title : '';
   }
@@ -74,6 +76,7 @@ const ShopApp = (function () {
   // 選んでいないものがあるのに先の画面へ来たら、トップに戻す
   function reachableStep(step) {
     if (step === 'done') return state.booking ? 'done' : 'top';
+    if (step === 'admin') return 'admin';
     const second = isRestaurant() ? !!state.partySize : !!state.staffId;
     const needs = {
       top: true,
@@ -534,6 +537,7 @@ const ShopApp = (function () {
   const RENDERERS = {
     top: renderTop, menu: renderMenu, party: renderParty, staff: renderStaff,
     date: renderDate, time: renderTime, info: renderInfo, confirm: renderConfirm, done: renderDone,
+    admin: () => ShopAdmin.render(state.shopId),
   };
 
   // 切り替えボタンに出す短い名前（「和食 ゆずり葉（見本）」→「ゆずり葉」）。スマホで1行に収めるため
@@ -557,6 +561,11 @@ const ShopApp = (function () {
     document.body.dataset.color = s.color;
     document.getElementById('site-name').textContent = s.name;
     renderShopSwitch();
+    // 画面上部の切り替えボタン：いまどちらを見ているか
+    const isAdmin = state.step === 'admin';
+    document.body.classList.toggle('is-admin', isAdmin);
+    document.getElementById('mode-customer').setAttribute('aria-pressed', String(!isAdmin));
+    document.getElementById('mode-admin').setAttribute('aria-pressed', String(isAdmin));
     appEl.innerHTML = RENDERERS[state.step]();
     document.title = (state.step === 'top' ? '' : stepTitle(state.step) + ' — ') + s.name;
     renderSummary();
@@ -569,7 +578,31 @@ const ShopApp = (function () {
     if (!el || el.disabled) return;
     const a = el.dataset.action;
     if (a === 'switch-shop') {
-      if (el.dataset.id !== state.shopId) { state.shopId = el.dataset.id; resetDraft(); go('top'); }
+      if (el.dataset.id === state.shopId) return;
+      if (state.step === 'admin') {
+        // お店側では、お店側のまま切りかえる。保存していない設定の変更があれば確かめる
+        if (ShopAdmin.isDirty() && !window.confirm('保存していない設定の変更があります。変更を捨てて、お店を切りかえますか？')) return;
+        ShopAdmin.forgetDraft();
+        state.shopId = el.dataset.id;
+        resetDraft();
+        go('admin', true);
+      } else {
+        state.shopId = el.dataset.id;
+        resetDraft();
+        go('top');
+      }
+    } else if (a === 'mode-customer') {
+      if (state.step === 'admin') { resetDraft(); go('top'); }
+    } else if (a === 'mode-admin') {
+      if (state.step !== 'admin') go('admin');
+    } else if (a.startsWith('admin-') || a.startsWith('settings-')) {
+      if (ShopAdmin.handleClick(a, el)) {
+        const y = window.scrollY;
+        render();
+        // 保存・取り消し・タブの切りかえは上から、追加・削除・並べかえは見ていた場所のまま
+        if (a.startsWith('settings-') && a !== 'settings-save' && a !== 'settings-discard') window.scrollTo(0, y);
+        else window.scrollTo(0, 0);
+      }
     } else if (a === 'back') history.back();
     else if (a === 'start') { resetDraft(); go('menu'); }
     else if (a === 'select-menu') {
@@ -632,10 +665,30 @@ const ShopApp = (function () {
   }
 
   function onInput(e) {
-    if (e.target.form && e.target.form.id === 'info-form') state.info[e.target.name] = e.target.value;
+    if (e.target.form && e.target.form.id === 'info-form') { state.info[e.target.name] = e.target.value; return; }
+    if (state.step === 'admin' && ShopAdmin.handleInput(e.target, 'input')) render();
+  }
+
+  // 選ぶ欄・チェック・ファイルを選んだとき（お店側）
+  function onChange(e) {
+    if (state.step !== 'admin') return;
+    if (e.target.matches('[data-import-file]')) {
+      ShopAdmin.handleImport(e.target, () => render());
+      return;
+    }
+    if (ShopAdmin.handleInput(e.target, 'change')) {
+      const y = window.scrollY; // 設定は長いので、描き直しても見ていた場所のままにする
+      render();
+      window.scrollTo(0, y);
+    }
   }
 
   function onSubmit(e) {
+    if (ShopAdmin.handleSubmit(e.target)) {
+      e.preventDefault();
+      render();
+      return;
+    }
     if (e.target.id !== 'info-form') return;
     e.preventDefault();
     state.errors = validate(state.info);
@@ -653,6 +706,7 @@ const ShopApp = (function () {
     ShopStore.load(now()); // 見本データがなければ作る
     document.addEventListener('click', onClick);
     document.addEventListener('input', onInput);
+    document.addEventListener('change', onChange);
     document.addEventListener('submit', onSubmit);
     window.addEventListener('resize', renderSummary);
     // スマホで文字を入れはじめたら、その画面のあいだは下の帯を隠す（キーボードと帯で入力欄が見えなくならないように）

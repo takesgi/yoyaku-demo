@@ -16,6 +16,12 @@
     <p class="site-name" id="site-name">お店向け予約ページ（見本）</p>
     <!-- 見本のお店の切り替え -->
     <nav class="mode-switch" id="shop-switch" aria-label="見本のお店の切り替え"></nav>
+    <!-- お客さん側とお店側の切り替え（見本なのでログインはなし） -->
+    <nav class="mode-switch" aria-label="画面の切り替え">
+      <button type="button" class="mode-btn" data-action="mode-customer" id="mode-customer">お客さん側</button>
+      <button type="button" class="mode-btn" data-action="mode-admin" id="mode-admin">お店側</button>
+      <span class="mode-note">見本のため誰でも見られます</span>
+    </nav>
   </header>
 
   <div class="layout">
@@ -25,12 +31,14 @@
     <aside class="summary" id="summary" aria-label="選んだ内容" hidden></aside>
   </div>
 
-  <!-- 読みこむ順番に意味がある：お店の設定 → 計算 → 金額 → 書き方 → 保存 → 画面 -->
+  <!-- 読みこむ順番に意味がある：お店の設定 → 計算 → 金額 → 書き方 → 保存 → 設定の確かめ → お店側の画面 → 画面全体 -->
   <script src="js/shops.js"></script>
   <script src="js/availability.js"></script>
   <script src="js/price.js"></script>
   <script src="js/format.js"></script>
   <script src="js/store.js"></script>
+  <script src="js/settings.js"></script>
+  <script src="js/admin.js"></script>
   <script src="js/app.js"></script>
 </body>
 </html>

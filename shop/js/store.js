@@ -128,5 +128,10 @@ const ShopStore = (function () {
     records.blocks = records.blocks.filter((b) => b.id !== id);
   }
 
-  return { load, save, reset, seed, nextBookingNumber, addBooking, cancelBooking, addBlock, removeBlock };
+  // お店の設定を置きかえる（設定画面の保存・設定ファイルの読み込み）。予約はそのまま残す
+  function replaceShop(data, shop) {
+    data.shops = data.shops.map((s) => (s.id === shop.id ? JSON.parse(JSON.stringify(shop)) : s));
+  }
+
+  return { load, save, reset, seed, replaceShop, nextBookingNumber, addBooking, cancelBooking, addBlock, removeBlock };
 })();

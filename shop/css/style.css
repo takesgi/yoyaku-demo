@@ -672,3 +672,83 @@ body.is-admin .page { max-width: 1040px; }
   border-radius: var(--radius);
   padding: 12px 16px;
 }
+
+/* ---------- お店側の設定 ---------- */
+.settings-group {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  padding: 16px;
+  margin: 20px 0;
+}
+.settings-group h3 { font-size: 1.05rem; margin: 16px 0 8px; color: var(--color-main-dark); }
+.settings-card {
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  padding: 12px;
+  margin-bottom: 12px;
+}
+.settings-card-title { font-weight: bold; color: var(--color-main-dark); }
+.settings-card .field { margin-bottom: 12px; }
+.settings-card-actions { display: flex; flex-wrap: wrap; gap: 8px; }
+.field-row.three { grid-template-columns: minmax(0, 2fr) minmax(0, 1fr) minmax(0, 1fr); }
+fieldset { border: none; padding: 0; margin: 0 0 12px; min-width: 0; }
+legend { font-weight: bold; margin-bottom: 4px; padding: 0; }
+.check { display: inline-flex; align-items: center; gap: 6px; min-height: var(--tap-height); margin-right: 16px; cursor: pointer; }
+.check input { width: 22px; height: 22px; margin: 0; accent-color: var(--color-main); }
+.radio-row { display: flex; flex-wrap: wrap; }
+.radio-col { display: flex; flex-direction: column; }
+.swatch { display: inline-block; width: 20px; height: 20px; border-radius: 50%; border: 1px solid rgba(0, 0, 0, 0.2); }
+.swatch[data-swatch="navy"] { background: #1f3a5f; }
+.swatch[data-swatch="green"] { background: #2e5a44; }
+.swatch[data-swatch="brown"] { background: #5c4330; }
+.swatch[data-swatch="wine"] { background: #6b2f3a; }
+.swatch[data-swatch="gray"] { background: #3a3f45; }
+
+.hours-table { display: grid; gap: 8px; margin-bottom: 8px; }
+.hours-row {
+  display: grid;
+  grid-template-columns: 2em 7em minmax(0, 1fr) minmax(0, 1fr);
+  align-items: center;
+  gap: 8px;
+  border-bottom: 1px solid var(--color-border);
+  padding-bottom: 8px;
+}
+.hours-row.is-closed { color: var(--color-none-text); }
+.hours-day { margin: 0; font-weight: bold; }
+.hours-part { display: flex; align-items: center; gap: 4px; flex-wrap: wrap; min-width: 0; }
+.hours-part span { font-size: 0.95rem; min-width: 2.5em; }
+.hours-part select {
+  min-height: var(--tap-height);
+  padding: 6px 8px;
+  font: inherit;
+  border: 2px solid var(--color-border);
+  border-radius: var(--radius);
+  background: #fff;
+  min-width: 0;
+  max-width: 100%;
+}
+.closed-dates { padding-left: 1.2em; }
+.closed-dates li { margin-bottom: 6px; }
+.file-btn { position: relative; overflow: hidden; }
+.file-btn input { position: absolute; inset: 0; opacity: 0; cursor: pointer; }
+.settings-save { display: flex; flex-wrap: wrap; gap: 12px; }
+
+/* スマホ・タブレットの縦では、曜日ごとの営業時間を縦に並べる */
+@media (max-width: 699px) {
+  .hours-row { grid-template-columns: 2em minmax(0, 1fr); }
+  .hours-row .hours-part { grid-column: 1 / -1; }
+  .field-row.three { grid-template-columns: minmax(0, 1fr); }
+}
+
+/* 入力欄の指定（幅いっぱい・枠つき）が、チェックや丸の選択肢にかからないようにする */
+.field .check { display: inline-flex; margin-bottom: 0; font-weight: normal; }
+.field .check input, .check input[type="radio"], .check input[type="checkbox"] {
+  width: 22px;
+  min-width: 22px;
+  height: 22px;
+  min-height: 0;
+  padding: 0;
+  border: none;
+  display: inline-block;
+}

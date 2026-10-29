@@ -250,6 +250,14 @@ const ShopAvailability = (function () {
     return { days, earliest };
   }
 
+  // その日のその時間帯に重なる予約（キャンセル済みは数えない）
+  // お店側で「受けない時間」を登録するときに、予約が何件あるかを知らせるのに使う
+  function bookingsOverlapping(records, date, start, end) {
+    return records.bookings.filter((b) =>
+      b.date === date && b.status !== 'cancelled' &&
+      overlaps(toMinutes(start), toMinutes(end), toMinutes(b.start), toMinutes(b.end)));
+  }
+
   // 確定の直前に、その枠がまだ空いているかを確かめる
   // 枠：{ date, start, menuId, partySize, seatKind, staffId }。空いていれば割り当てる席・担当の id、なければ null
   function isStillAvailable(shop, slot, now, records) {
@@ -264,6 +272,7 @@ const ShopAvailability = (function () {
   return {
     getAvailability,
     isStillAvailable,
+    bookingsOverlapping,
     toMinutes,
     toTime,
     addDays,

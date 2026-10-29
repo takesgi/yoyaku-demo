@@ -296,6 +296,74 @@ test('見本の元データ（SAMPLE_SHOPS）は、見本を作っても書き�
   assertEqual(JSON.stringify(SAMPLE_SHOPS), before, '元データ');
 });
 
+// ---------- 段階3：設定 ----------
+
+test('見本の2店の設定には、まちがいがない', () => {
+  SAMPLE_SHOPS.forEach((x) => assertEqual(ShopSettings.validate(x).join('／'), '', x.name));
+});
+
+test('設定のまちがいを見つける（終わりが始まりより前・メニューなし・キャンセル料の中身なし・頭文字）', () => {
+  const shop = shopOf('yuzuriha');
+  shop.weeklyHours[1][0] = { start: '14:00', end: '11:30' };
+  shop.menus = [];
+  shop.cancel.feeDetail = '';
+  shop.bookingPrefix = 'ゆず';
+  const errors = ShopSettings.validate(shop).join('\n');
+  assertEqual(errors.includes('月曜：第1部の終わりは、始まりより後にしてください'), true, '営業時間');
+  assertEqual(errors.includes('メニューを1つ以上入れてください'), true, 'メニュー');
+  assertEqual(errors.includes('キャンセル料ありのときは、金額や率を書いてください'), true, 'キャンセル料');
+  assertEqual(errors.includes('予約番号の頭は'), true, '頭文字');
+});
+
+test('書き出したファイルを読み込むと、同じ設定になる', () => {
+  const shop = shopOf('komorebi');
+  shop.menus[0].minutes = 45;
+  shop.staff.push({ id: 's4', name: '追加（見本）', offWeekdays: [1] });
+  const text = ShopSettings.exportText(shop);
+  const result = ShopSettings.importText(text, SAMPLE_SHOPS);
+  assertEqual(result.ok, true, '読み込めたか');
+  assertEqual(JSON.stringify(result.shop), JSON.stringify(shop), '中身が同じ');
+});
+
+test('ちがうファイルは読み込まない（形がちがう・知らないお店・型がちがう）', () => {
+  assertEqual(ShopSettings.importText('こわれた文字', SAMPLE_SHOPS).ok, false, 'JSONでない');
+  assertEqual(ShopSettings.importText(JSON.stringify({ hello: 1 }), SAMPLE_SHOPS).ok, false, '形がちがう');
+  const other = shopOf('komorebi', { id: 'unknown' });
+  assertEqual(ShopSettings.importText(ShopSettings.exportText(other), SAMPLE_SHOPS).message, '見本の2店のどちらかの設定ファイルを選んでください', '知らないお店');
+  const wrongType = shopOf('komorebi', { id: 'yuzuriha' });
+  assertEqual(ShopSettings.importText(ShopSettings.exportText(wrongType), SAMPLE_SHOPS).message, '型（飲食店・サロン）がちがう設定ファイルです', '型');
+});
+
+test('設定でメニューの時間や営業時間を変えると、選べる枠が変わる', () => {
+  const shop = shopOf('komorebi');
+  const before = slotsOf(shop, { menuId: 'cut', staffId: 'any', date: '2026-11-06', records: empty() });
+  shop.weeklyHours[5] = [{ start: '10:00', end: '15:00' }]; // 金曜を15時までに
+  shop.menus[0].minutes = 30;
+  shop.rules.stepMinutes = 60;
+  const after = slotsOf(shop, { menuId: 'cut', staffId: 'any', date: '2026-11-06', records: empty() });
+  assertEqual(before.slots[before.slots.length - 1].start, '18:00', '変える前の最後（19時まで・60分）');
+  assertEqual(after.slots.map((x) => x.start).join(','), '10:00,11:00,12:00,13:00,14:00', '変えたあと（15時まで・30分・60分刻み）');
+});
+
+test('受けない時間に重なる予約を数える（キャンセル済みは数えない）', () => {
+  const shop = shopOf('komorebi');
+  const records = empty();
+  book(shop, records, { date: '2026-11-06', start: '10:00', menuId: 'cut', staffId: 's1' });
+  const c = book(shop, records, { date: '2026-11-06', start: '11:00', menuId: 'cut', staffId: 's2' });
+  ShopStore.cancelBooking(records, c.id);
+  assertEqual(ShopAvailability.bookingsOverlapping(records, '2026-11-06', '10:00', '12:00').length, 1, '午前');
+});
+
+test('設定を置きかえても、予約は残る', () => {
+  const data = ShopStore.seed(NOW);
+  const count = data.records.yuzuriha.bookings.length;
+  const changed = JSON.parse(JSON.stringify(data.shops[0]));
+  changed.name = '和食 ゆずり葉 本店（見本）';
+  ShopStore.replaceShop(data, changed);
+  assertEqual(data.shops[0].name, '和食 ゆずり葉 本店（見本）', '店名');
+  assertEqual(data.records.yuzuriha.bookings.length, count, '予約の件数');
+});
+
 // ---------- 結果を画面に出す ----------
 
 const list = document.getElementById('results');
