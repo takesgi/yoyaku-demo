@@ -610,3 +610,14 @@ body.is-admin .page { max-width: 1040px; }
 .test-list li { margin: 6px 0; overflow-wrap: anywhere; }
 .test-ok { color: var(--color-ok); }
 .test-ng { color: var(--color-ng); font-weight: bold; }
+
+/* ---------- お店向けの見本への案内（トップの画面にだけ出す） ---------- */
+/* トップの画面には .hero があるので、それがあるときだけ出す（js/app.js は変えずにすむ） */
+.site-footer { display: none; }
+body:has(.hero) .site-footer {
+  display: block;
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 0 16px 32px;
+  font-size: 1rem;
+}
