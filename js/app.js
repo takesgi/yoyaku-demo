@@ -488,7 +488,11 @@ const App = (function () {
     admin: () => Admin.render(), // 教室側の中身は js/admin.js
   };
 
+  let renderedStep = null;
+
   function render() {
+    if (state.step !== renderedStep) document.body.classList.remove('is-typing'); // 画面が変わったら下の帯を戻す
+    renderedStep = state.step;
     appEl.innerHTML = RENDERERS[state.step]();
     // 画面上部の切り替えボタン：いまどちらを見ているか
     const isAdmin = state.step === 'admin';
@@ -601,11 +605,12 @@ const App = (function () {
     document.addEventListener('input', onInput);
     document.addEventListener('submit', onSubmit);
     window.addEventListener('resize', renderSummary);
-    // スマホで文字を入れている間は、下の帯を隠す（キーボードと帯で入力欄が見えなくならないように）
+    // スマホで文字を入れはじめたら、その画面のあいだは下の帯を隠す（キーボードと帯で入力欄が見えなくならないように）
     document.addEventListener('focusin', (e) => {
       if (e.target.matches('input, textarea, select')) document.body.classList.add('is-typing');
     });
-    document.addEventListener('focusout', () => document.body.classList.remove('is-typing'));
+    // ※入力欄から離れたときに帯を戻すと、戻ってきた帯が「次へ」ボタンの上にかぶり、押したのに進まないことがあった。
+    //   そのため帯を戻すのは、次の画面を描くとき（render）にした
     history.replaceState({ step: 'top' }, '', location.pathname);
     render();
   }
