@@ -1,0 +1,632 @@
+/* =============================================================
+   shop/css/style.css — お店向け予約ページの見た目
+   レッスン予約の css/style.css を写したもの（iPhone の入力欄の指定もそのまま入っている）。
+   お店の色は、5色から選ぶ（body の data-color で切りかえる）。
+   ============================================================= */
+
+:root {
+  /* お店の色（既定は紺）。下の body[data-color] で5色を切りかえる */
+  --color-main: #1f3a5f;
+  --color-main-dark: #152a46;
+  --color-main-light: #e8eef6;
+
+  --color-text: #1f2328;      /* 本文 */
+  --color-text-sub: #3d4650;  /* 説明文（薄くしすぎない） */
+  --color-bg: #f7f8fa;
+  --color-surface: #ffffff;
+  --color-border: #c9d1db;
+
+  --color-notice-bg: #fff4d6; /* 「見本です」の帯 */
+  --color-notice-text: #5a4300;
+
+  --color-few: #7a5200;       /* △ 残りわずか（せかさない落ち着いた茶） */
+  --color-none-bg: #eceef1;   /* × の日の地（赤で塗らない） */
+  --color-none-text: #5b636d; /* × の日の文字（読める濃さ） */
+  --color-error: #8a3b00;     /* 入力のまちがい */
+
+  --color-ok: #1e6b3a;        /* テストの成功 */
+  --color-ng: #8a3b00;        /* テストの失敗（赤で塗らない） */
+
+  --font-size-base: 17px;
+  --line-height: 1.8;
+  --tap-height: 48px;         /* ボタンの高さの下限 */
+  --radius: 8px;
+}
+
+/* お店の色（5色）。設定の color と同じ名前 */
+body[data-color="navy"]  { --color-main: #1f3a5f; --color-main-dark: #152a46; --color-main-light: #e8eef6; }
+body[data-color="green"] { --color-main: #2e5a44; --color-main-dark: #1f3f30; --color-main-light: #e6f0ea; }
+body[data-color="brown"] { --color-main: #5c4330; --color-main-dark: #402e20; --color-main-light: #f2ebe4; }
+body[data-color="wine"]  { --color-main: #6b2f3a; --color-main-dark: #4c2029; --color-main-light: #f4e8ea; }
+body[data-color="gray"]  { --color-main: #3a3f45; --color-main-dark: #26292d; --color-main-light: #eceef0; }
+
+
+* { box-sizing: border-box; }
+
+html { font-size: var(--font-size-base); }
+
+body {
+  margin: 0;
+  background: var(--color-bg);
+  color: var(--color-text);
+  font-family: "Hiragino Sans", "Hiragino Kaku Gothic ProN", "Noto Sans JP", "Yu Gothic", Meiryo, sans-serif;
+  line-height: var(--line-height);
+}
+
+a { color: var(--color-main); }
+
+/* 「これは見本です」の帯 */
+.demo-notice {
+  margin: 0;
+  padding: 8px 16px;
+  background: var(--color-notice-bg);
+  color: var(--color-notice-text);
+  text-align: center;
+  font-weight: bold;
+}
+
+.site-header {
+  background: var(--color-main);
+  color: #fff;
+  padding: 8px 16px;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 4px 16px;
+}
+
+/* お客さん側・教室側の切り替え */
+.mode-switch { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 8px; }
+.mode-btn {
+  min-height: var(--tap-height);
+  padding: 6px 14px;
+  border: 2px solid #fff;
+  border-radius: var(--radius);
+  background: transparent;
+  color: #fff;
+  font-weight: bold;
+  cursor: pointer;
+}
+.mode-btn[aria-pressed="true"] { background: #fff; color: var(--color-main-dark); }
+.mode-note { font-size: 0.9rem; }
+
+.site-name {
+  margin: 0;
+  font-size: 1.15rem;
+  font-weight: bold;
+}
+
+.page {
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 24px 16px 48px;
+}
+
+/* 本文と「選んだ内容」を並べる枠（スマホでは本文だけ） */
+.layout {
+  max-width: 1100px;
+  margin: 0 auto;
+}
+.layout > .page { margin: 0 auto; }
+
+h1 {
+  font-size: 1.4rem;
+  color: var(--color-main-dark);
+  line-height: 1.5;
+}
+
+h2 {
+  font-size: 1.2rem;
+  color: var(--color-main-dark);
+  margin: 0 0 8px;
+}
+
+p { margin: 0 0 12px; }
+
+.sub { color: var(--color-text-sub); font-size: 1rem; }
+
+.section { margin-top: 32px; }
+
+/* ---------- ボタン ---------- */
+button { font: inherit; }
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: var(--tap-height);
+  padding: 10px 24px;
+  border-radius: var(--radius);
+  border: 2px solid var(--color-main);
+  font-weight: bold;
+  cursor: pointer;
+}
+.btn-primary { background: var(--color-main); color: #fff; }
+.btn-primary:hover { background: var(--color-main-dark); }
+.btn-secondary { background: var(--color-surface); color: var(--color-main); }
+.btn-secondary:hover { background: var(--color-main-light); }
+.btn-large { min-height: 56px; font-size: 1.15rem; padding: 12px 40px; }
+
+.actions { margin: 24px 0 8px; }
+.actions .btn { width: 100%; }
+
+button:focus-visible, input:focus-visible, textarea:focus-visible {
+  outline: 3px solid #f0b400;
+  outline-offset: 2px;
+}
+
+/* ---------- 手順の見出し ---------- */
+.step-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 4px;
+}
+.btn-back {
+  min-height: var(--tap-height);
+  padding: 8px 16px 8px 8px;
+  border: none;
+  background: none;
+  color: var(--color-main);
+  font-weight: bold;
+  cursor: pointer;
+  text-decoration: underline;
+}
+.step-count { margin: 0; color: var(--color-text-sub); font-size: 1rem; }
+
+/* ---------- トップ ---------- */
+.hero {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  padding: 24px 20px;
+  text-align: center;
+}
+.hero h1 { margin-top: 0; font-size: 1.7rem; }
+.lead { font-size: 1.05rem; text-align: left; }
+.hero .btn-large { width: 100%; max-width: 360px; margin-top: 8px; }
+
+.place-list { list-style: none; padding: 0; margin: 0; }
+.place-list li {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  padding: 12px 16px;
+  margin-bottom: 8px;
+}
+.place-name { display: block; font-weight: bold; color: var(--color-main-dark); }
+.place-detail { display: block; color: var(--color-text-sub); }
+
+/* ---------- 選ぶカード（講座・場所） ---------- */
+.choice-list { display: grid; gap: 12px; margin: 16px 0; }
+.choice {
+  display: block;
+  width: 100%;
+  min-height: var(--tap-height);
+  text-align: left;
+  padding: 14px 16px 14px 52px;
+  background: var(--color-surface);
+  border: 2px solid var(--color-border);
+  border-radius: var(--radius);
+  color: var(--color-text);
+  cursor: pointer;
+  position: relative;
+  line-height: 1.6;
+}
+/* 左の丸（選ぶと塗りつぶし） */
+.choice::before {
+  content: "";
+  position: absolute;
+  left: 16px;
+  top: 18px;
+  width: 22px;
+  height: 22px;
+  border: 2px solid var(--color-main);
+  border-radius: 50%;
+  background: #fff;
+}
+.choice[aria-checked="true"] {
+  border-color: var(--color-main);
+  background: var(--color-main-light);
+  box-shadow: 0 0 0 1px var(--color-main);
+}
+.choice[aria-checked="true"]::before {
+  background: var(--color-main);
+  box-shadow: inset 0 0 0 4px #fff;
+}
+.choice-title { display: block; font-weight: bold; font-size: 1.1rem; color: var(--color-main-dark); }
+.choice-meta { display: block; font-weight: bold; }
+.choice-desc { display: block; color: var(--color-text-sub); }
+
+.notes { padding-left: 1.3em; margin: 8px 0 16px; }
+
+.tickets table {
+  width: 100%;
+  border-collapse: collapse;
+  background: var(--color-surface);
+  font-size: 1rem;
+}
+.tickets caption { text-align: left; font-weight: bold; padding-bottom: 4px; }
+.tickets th, .tickets td {
+  border: 1px solid var(--color-border);
+  padding: 6px 8px;
+  text-align: left;
+}
+.tickets tbody th { white-space: nowrap; }
+.tickets thead th { background: var(--color-main-light); }
+.tickets p { margin-top: 8px; }
+
+/* ---------- ③ 日付（カレンダー） ---------- */
+.earliest {
+  background: var(--color-surface);
+  border: 2px solid var(--color-main);
+  border-radius: var(--radius);
+  padding: 16px;
+  margin: 16px 0;
+}
+.earliest-label { margin: 0; color: var(--color-text-sub); font-weight: bold; }
+.earliest-value { font-size: 1.25rem; font-weight: bold; color: var(--color-main-dark); margin: 4px 0 12px; }
+.earliest .btn { width: 100%; }
+
+.legend { display: flex; flex-wrap: wrap; gap: 4px 16px; font-size: 1rem; }
+
+.cal-nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin: 8px 0;
+}
+.cal-title { margin: 0; font-size: 1.2rem; }
+.btn-month {
+  min-height: var(--tap-height);
+  padding: 8px 12px;
+  border: 2px solid var(--color-main);
+  border-radius: var(--radius);
+  background: var(--color-surface);
+  color: var(--color-main);
+  font-weight: bold;
+  cursor: pointer;
+}
+.btn-month:disabled { border-color: var(--color-border); color: var(--color-none-text); cursor: default; }
+
+.calendar { width: 100%; border-collapse: separate; border-spacing: 3px; table-layout: fixed; margin-bottom: 12px; }
+.calendar th { font-size: 0.95rem; font-weight: bold; color: var(--color-text-sub); padding: 4px 0; }
+.calendar td { padding: 0; height: 60px; }
+.cal-day {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  min-height: var(--tap-height);
+  border-radius: 6px;
+  border: 2px solid var(--color-border);
+  background: var(--color-surface);
+  line-height: 1.2;
+}
+button.cal-day { cursor: pointer; }
+button.cal-day:hover { border-color: var(--color-main); }
+.cal-num { font-size: 1rem; font-weight: bold; }
+.cal-mark { font-size: 1.1rem; font-weight: bold; }
+.mark-ok, .mark-ok .cal-mark { color: var(--color-main); }
+/* ○ は文字の形が小さく見えるので、△・× と同じくらいの大きさの輪を線で描く（文字は読み上げ用に残す） */
+.mark-ok .cal-mark, .ring {
+  display: inline-block;
+  width: 0.95em;
+  height: 0.95em;
+  margin: 0.15em 0;
+  border: 2.5px solid var(--color-main);
+  border-radius: 50%;
+  font-size: 1rem;
+  color: transparent;
+  overflow: hidden;
+  vertical-align: middle;
+}
+.mark-few, .mark-few .cal-mark { color: var(--color-few); }
+.cal-day.mark-none { background: var(--color-none-bg); border-color: var(--color-none-bg); color: var(--color-none-text); }
+.mark-none-text { color: var(--color-none-text); }
+.cal-day.is-selected { border-color: var(--color-main); background: var(--color-main-light); box-shadow: 0 0 0 1px var(--color-main); }
+
+/* ---------- ④ 時間 ---------- */
+.day-title { font-size: 1.15rem; font-weight: bold; margin: 8px 0 4px; }
+.time-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: 8px;
+  margin: 12px 0;
+}
+.time-btn {
+  min-height: var(--tap-height);
+  padding: 8px;
+  border: 2px solid var(--color-main);
+  border-radius: var(--radius);
+  background: var(--color-surface);
+  color: var(--color-main-dark);
+  font-weight: bold;
+  font-size: 1.05rem;
+  cursor: pointer;
+}
+.time-btn[aria-checked="true"] { background: var(--color-main); color: #fff; }
+.chosen {
+  background: var(--color-main-light);
+  border-radius: var(--radius);
+  padding: 12px 16px;
+  margin-top: 16px;
+}
+
+/* お知らせ（先に予約が入ったときなど）。責めない落ち着いた色 */
+.notice {
+  background: var(--color-notice-bg);
+  color: var(--color-notice-text);
+  border-radius: var(--radius);
+  padding: 12px 16px;
+  font-weight: bold;
+}
+.notice-plain {
+  background: var(--color-main-light);
+  border-radius: var(--radius);
+  padding: 12px 16px;
+}
+
+/* ---------- ⑤ 入力 ---------- */
+.field { margin-bottom: 20px; }
+.field label { display: block; font-weight: bold; margin-bottom: 4px; }
+.field input, .field textarea, .field select {
+  display: block;
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;          /* iPhone で入力欄が中身の幅に引っぱられて、はみ出さないように */
+  box-sizing: border-box;
+  min-height: var(--tap-height);
+  padding: 10px 12px;
+  font: inherit;
+  color: var(--color-text);
+  background: #fff;
+  border: 2px solid var(--color-border);
+  border-radius: var(--radius);
+}
+.field input:focus, .field textarea:focus { border-color: var(--color-main); }
+
+/* 日付の入力欄：iPhone（Safari）は独自の見た目で幅を決めるので、
+   見た目の指定を外して（appearance: none）ほかの欄と同じ幅・高さにそろえる */
+.field input[type="date"] {
+  -webkit-appearance: none;
+  appearance: none;
+  height: var(--tap-height);
+  line-height: 1.4;
+  text-align: left;
+}
+.field input[type="date"]::-webkit-date-and-time-value { text-align: left; }
+.field-hint { margin: 4px 0 0; color: var(--color-text-sub); font-size: 1rem; }
+.field-hint.is-empty { color: var(--color-main-dark); font-weight: bold; }
+.field [aria-invalid="true"] { border-color: var(--color-error); }
+.field-error { color: var(--color-error); font-weight: bold; margin: 4px 0 0; }
+.tag-req, .tag-opt {
+  display: inline-block;
+  font-size: 0.85rem;
+  padding: 0 8px;
+  border-radius: 4px;
+  margin-left: 4px;
+  vertical-align: middle;
+}
+.tag-req { background: var(--color-main); color: #fff; }
+.tag-opt { background: var(--color-none-bg); color: var(--color-text); }
+
+/* ---------- ⑥ 確認・⑦ 完了 ---------- */
+.demo-notice-strong {
+  background: var(--color-notice-bg);
+  color: var(--color-notice-text);
+  border: 2px solid #d9b44a;
+  border-radius: var(--radius);
+  padding: 12px 8px;
+  font-weight: bold;
+  text-align: center;
+}
+
+.details {
+  margin: 16px 0;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+}
+.details > div {
+  display: grid;
+  grid-template-columns: 7.5em 1fr;
+  gap: 8px;
+  padding: 10px 16px;
+  border-bottom: 1px solid var(--color-border);
+}
+.details > div:last-child { border-bottom: none; }
+.details dt { font-weight: bold; color: var(--color-main-dark); }
+.details dd { margin: 0; overflow-wrap: anywhere; }
+/* スマホでは項目名の下に中身を出す（中身の幅を広くとるため） */
+@media (max-width: 599px) {
+  .details > div { grid-template-columns: 1fr; gap: 0; }
+}
+
+.contact-box {
+  margin: 24px 0;
+  padding: 16px;
+  background: var(--color-surface);
+  border: 2px solid var(--color-main);
+  border-radius: var(--radius);
+}
+
+.booking-number {
+  text-align: center;
+  background: var(--color-main);
+  color: #fff;
+  border-radius: var(--radius);
+  padding: 16px;
+  margin: 16px 0;
+}
+.booking-number-label { margin: 0; font-weight: bold; }
+.booking-number-value { margin: 0; font-size: 1.6rem; font-weight: bold; letter-spacing: 0.05em; }
+
+.flow { padding-left: 1.5em; }
+.flow li { margin-bottom: 6px; }
+
+.email-preview {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  font-family: inherit;
+  font-size: 1rem;
+  line-height: 1.7;
+  background: var(--color-surface);
+  border: 1px dashed var(--color-border);
+  border-radius: var(--radius);
+  padding: 16px;
+}
+
+/* ---------- 教室側 ---------- */
+body.is-admin .page { max-width: 1040px; }
+
+.tabs { display: flex; flex-wrap: wrap; gap: 8px; margin: 8px 0 20px; border-bottom: 2px solid var(--color-main); }
+.tab-btn {
+  min-height: var(--tap-height);
+  padding: 8px 16px;
+  border: 2px solid var(--color-main);
+  border-bottom: none;
+  border-radius: var(--radius) var(--radius) 0 0;
+  background: var(--color-surface);
+  color: var(--color-main);
+  font-weight: bold;
+  cursor: pointer;
+  margin-bottom: -2px;
+}
+.tab-btn[aria-selected="true"] { background: var(--color-main); color: #fff; }
+
+.filters { display: flex; flex-wrap: wrap; gap: 8px; }
+.filter-btn {
+  min-height: var(--tap-height);
+  min-width: 88px;
+  padding: 8px 16px;
+  border: 2px solid var(--color-main);
+  border-radius: var(--radius);
+  background: var(--color-surface);
+  color: var(--color-main);
+  font-weight: bold;
+  cursor: pointer;
+}
+.filter-btn[aria-pressed="true"] { background: var(--color-main-light); box-shadow: inset 0 -4px 0 var(--color-main); }
+.period { margin: 12px 0; font-weight: bold; }
+.empty { padding: 16px; background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius); }
+
+.admin-table { width: 100%; border-collapse: collapse; background: var(--color-surface); }
+.admin-table th, .admin-table td {
+  border-bottom: 1px solid var(--color-border);
+  padding: 10px 12px;
+  text-align: left;
+  vertical-align: middle;
+}
+.admin-table thead th { background: var(--color-main-light); color: var(--color-main-dark); white-space: nowrap; }
+.admin-table tr.is-cancelled td { color: var(--color-none-text); background: var(--color-none-bg); }
+.status-cancelled { font-weight: bold; }
+.btn-small { min-height: var(--tap-height); padding: 6px 16px; }
+
+.block-form {
+  max-width: 640px;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  padding: 16px;
+}
+.field-row { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 16px; }
+.field-row > .field { min-width: 0; }
+.block-form .field { margin-bottom: 12px; }
+
+/* スマホでは表を1件ずつのカードにする（横にはみ出さないように） */
+@media (max-width: 699px) {
+  .tabs { border-bottom: none; }
+  .tab-btn { border-bottom: 2px solid var(--color-main); border-radius: var(--radius); margin-bottom: 0; }
+  .admin-table thead { display: none; }
+  .admin-table, .admin-table tbody, .admin-table tr, .admin-table td { display: block; width: 100%; }
+  .admin-table tr { border: 1px solid var(--color-border); border-radius: var(--radius); margin-bottom: 12px; padding: 4px 0; background: var(--color-surface); }
+  .admin-table td { border-bottom: none; padding: 4px 16px; display: grid; grid-template-columns: 6em 1fr; gap: 8px; }
+  .admin-table td::before { content: attr(data-label); font-weight: bold; color: var(--color-main-dark); }
+  .admin-table { background: transparent; }
+}
+
+/* ---------- 選んだ内容（スマホは下に固定の帯） ---------- */
+.summary {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 10;
+  background: var(--color-main-dark);
+  color: #fff;
+  padding: 8px 16px 10px;
+  font-size: 1rem;
+  line-height: 1.5;
+  box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.15);
+}
+.summary[hidden] { display: none; }
+.summary-title { display: none; }
+.summary-list { margin: 0; display: grid; grid-template-columns: 1fr; gap: 0; }
+.summary-list > div { display: flex; gap: 8px; min-width: 0; }
+.summary-list dt { flex: none; opacity: 0.85; }
+.summary-list dd { margin: 0; font-weight: bold; min-width: 0; overflow-wrap: anywhere; }
+
+/* スマホで文字を入れている間は帯を隠す（js/app.js が is-typing をつける） */
+@media (max-width: 959px) {
+  body.is-typing .summary { display: none; }
+}
+
+/* パソコン・タブレット：本文の右に並べる */
+@media (min-width: 960px) {
+  .layout {
+    display: grid;
+    grid-template-columns: minmax(0, 720px) 320px;
+    justify-content: center;
+    gap: 32px;
+    padding: 0 24px;
+  }
+  .layout.no-summary { grid-template-columns: minmax(0, 720px); }
+  body.is-admin .layout.no-summary { grid-template-columns: minmax(0, 1040px); }
+  .layout > .page { margin: 0; padding-left: 0; padding-right: 0; width: 100%; }
+  .summary {
+    position: sticky;
+    top: 24px;
+    align-self: start;
+    margin-top: 24px;
+    border-radius: var(--radius);
+    padding: 16px 20px;
+    box-shadow: none;
+  }
+  .summary-title { display: block; font-weight: bold; margin-bottom: 8px; font-size: 1.05rem; }
+  .summary-list { grid-template-columns: 1fr; gap: 8px; }
+  .summary-list > div { flex-direction: column; gap: 0; }
+  .actions .btn { width: auto; min-width: 320px; }
+}
+
+/* ---------- テストページ ---------- */
+.test-summary {
+  padding: 12px 16px;
+  border-radius: var(--radius);
+  background: var(--color-surface);
+  border: 2px solid var(--color-border);
+  font-weight: bold;
+}
+.test-summary[data-result="pass"] { border-color: var(--color-ok); color: var(--color-ok); }
+.test-summary[data-result="fail"] { border-color: var(--color-ng); color: var(--color-ng); }
+
+.test-list { padding-left: 1.5em; }
+.test-list li { margin: 6px 0; overflow-wrap: anywhere; }
+.test-ok { color: var(--color-ok); }
+.test-ng { color: var(--color-ng); font-weight: bold; }
+
+/* ---------- お店の予約ページで足したもの ---------- */
+.shop-cards { display: grid; gap: 12px; }
+.shop-card {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  padding: 16px;
+}
+.shop-card h2 { margin-bottom: 4px; }
+.shop-card p:last-child { margin-bottom: 0; }
