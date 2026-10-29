@@ -22,7 +22,7 @@
 // =============================================================
 
 // データの版番号。見本の中身や形を変えたら1つ上げる（保存データが作り直される）
-const SHOP_DATA_VERSION = 1;
+const SHOP_DATA_VERSION = 2;
 
 // どのお店にも共通のきまり
 const SHOP_COMMON = {
@@ -67,6 +67,45 @@ const SHOP_REASONS = {
   full: '満席',
 };
 
+// お客さん側の手順（型ごと）。名前は画面の見出しにそのまま出す
+const SHOP_STEPS = {
+  restaurant: [
+    { id: 'menu', title: 'コースを選ぶ' },
+    { id: 'party', title: '人数と席を選ぶ' },
+    { id: 'date', title: '日付を選ぶ' },
+    { id: 'time', title: '時間を選ぶ' },
+    { id: 'info', title: 'お客様情報' },
+    { id: 'confirm', title: '予約内容の確認' },
+  ],
+  salon: [
+    { id: 'menu', title: 'メニューを選ぶ' },
+    { id: 'staff', title: '担当を選ぶ' },
+    { id: 'date', title: '日付を選ぶ' },
+    { id: 'time', title: '時間を選ぶ' },
+    { id: 'info', title: 'お客様情報' },
+    { id: 'confirm', title: '予約内容の確認' },
+  ],
+};
+
+// 完了画面の「このあとの流れ」（型ごと）
+const SHOP_AFTER_FLOW = {
+  restaurant: [
+    'ご予約の時間に、お店へお越しください',
+    '人数が変わるときは、お店へお電話ください',
+    'お支払いは、お店でお願いします',
+  ],
+  salon: [
+    'ご予約の時間に、お店へお越しください',
+    'メニューを変えたいときは、お店へお電話ください',
+    'お支払いは、お店でお願いします',
+  ],
+};
+
+// お客様情報の最初に入れておく見本の値
+const SHOP_DUMMY_CUSTOMER = { name: '見本 太郎（見本）', phone: '090-0000-0000', email: 'mihon@example.com' };
+
+// 飲食店で選べる人数の上限は、いちばん大きい席の定員（お店の設定から決まる）
+
 // 曜日ごとに同じ営業時間を並べる小さな道具
 function sameHoursEveryDay(parts) {
   return [0, 1, 2, 3, 4, 5, 6].map(() => parts.map((p) => ({ ...p })));
@@ -103,10 +142,9 @@ const SAMPLE_SHOPS = [
       { id: 't2', name: 'テーブル2', kind: 'テーブル', capacity: 4 },
       { id: 't3', name: 'テーブル3', kind: 'テーブル', capacity: 4 },
       { id: 'r1', name: '個室', kind: '個室', capacity: 6 },
-      { id: 'c1', name: 'カウンター1', kind: 'カウンター', capacity: 1 },
-      { id: 'c2', name: 'カウンター2', kind: 'カウンター', capacity: 1 },
-      { id: 'c3', name: 'カウンター3', kind: 'カウンター', capacity: 1 },
-      { id: 'c4', name: 'カウンター4', kind: 'カウンター', capacity: 1 },
+      // カウンターは「2名まで」の席×2（合計4名ぶん）。席をつなげる仕組みは作らない（2026-10-29 たけさん）
+      { id: 'c1', name: 'カウンター1', kind: 'カウンター', capacity: 2 },
+      { id: 'c2', name: 'カウンター2', kind: 'カウンター', capacity: 2 },
     ],
     // ※締め切り・何日先まで・刻みは指示書にないので仮の値（開発ログの質問を参照）
     rules: { deadlineHours: 3, maxDaysAhead: 30, stepMinutes: 30, cleanupMinutes: 15 },

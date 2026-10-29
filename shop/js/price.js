@@ -23,5 +23,18 @@ const ShopPrice = (function () {
     return menu.price === null ? '' : format(menu.price);
   }
 
-  return { withTax, yen, format, formatMenu };
+  // 1名あたりと、人数をかけた合計（飲食店）
+  // 5000, 2 → '1名 5,000円（税込5,500円）× 2名＝合計 10,000円（税込11,000円）'
+  function formatPerPersonTotal(price, partySize) {
+    return '1名 ' + format(price) + '× ' + partySize + '名＝合計 ' + format(price * partySize);
+  }
+
+  // 飲食店のメニューの金額。人数がまだなら1名あたりだけ。金額なしは空の文字
+  function formatMenuFor(shop, menu, partySize) {
+    if (menu.price === null) return '';
+    if (shop.type !== 'restaurant') return format(menu.price);
+    return partySize ? formatPerPersonTotal(menu.price, partySize) : '1名 ' + format(menu.price);
+  }
+
+  return { withTax, yen, format, formatMenu, formatPerPersonTotal, formatMenuFor };
 })();

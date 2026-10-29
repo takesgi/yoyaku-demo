@@ -86,12 +86,17 @@ test('6名は個室だけになる', () => {
   assertEqual(slotAt(slotsOf(shop, seven), '12:00').reasonText, '人数に合う席がありません', '7名');
 });
 
-test('席の種類の希望（カウンター）を選ぶと、その種類の席だけを使う', () => {
+test('席の種類の希望（カウンター・2名まで×2）を選ぶと、その種類の席だけを使う', () => {
   const shop = shopOf('yuzuriha');
-  const one = { menuId: 'lunch', partySize: 1, seatKind: 'カウンター', date: '2026-11-05', records: empty() };
-  assertEqual(slotAt(slotsOf(shop, one), '12:00').resourceId, 'c1', '1名・カウンター');
-  const two = { menuId: 'lunch', partySize: 2, seatKind: 'カウンター', date: '2026-11-05', records: empty() };
-  assertEqual(slotAt(slotsOf(shop, two), '12:00').reasonText, '人数に合う席がありません', '2名・カウンター');
+  const records = empty();
+  const two = { menuId: 'lunch', partySize: 2, seatKind: 'カウンター', date: '2026-11-05', records };
+  assertEqual(slotAt(slotsOf(shop, two), '12:00').resourceId, 'c1', '2名・カウンター');
+  book(shop, records, { date: '2026-11-05', start: '12:00', menuId: 'lunch', partySize: 2, seatKind: 'カウンター' });
+  assertEqual(slotAt(slotsOf(shop, two), '12:00').resourceId, 'c2', '2組目はもう1つのカウンター');
+  const three = { menuId: 'lunch', partySize: 3, seatKind: 'カウンター', date: '2026-11-05', records: empty() };
+  assertEqual(slotAt(slotsOf(shop, three), '12:00').reasonText, '人数に合う席がありません', '3名・カウンター');
+  const anyTwo = { menuId: 'lunch', partySize: 2, seatKind: 'any', date: '2026-11-05', records: empty() };
+  assertEqual(slotAt(slotsOf(shop, anyTwo), '12:00').resourceId, 'c1', '2名・どれでもよい（小さい席から）');
 });
 
 test('同じ席に、片付けの時間（15分）を含めて重ならない', () => {
@@ -201,6 +206,17 @@ test('金額の表示が税込併記になる', () => {
   assertEqual(ShopPrice.formatMenu(ShopAvailability.findMenu(y, 'dinner')), '5,000円（税込5,500円）', '夜のおまかせ');
   assertEqual(ShopPrice.formatMenu(ShopAvailability.findMenu(y, 'seat')), '', '席のみ（金額なし）');
   assertEqual(ShopPrice.formatMenu(ShopAvailability.findMenu(k, 'cutcolor')), '9,800円（税込10,780円）', 'カット＋カラー');
+});
+
+test('飲食店は1名あたりと、人数をかけた合計の両方を出す', () => {
+  const y = shopOf('yuzuriha');
+  const k = shopOf('komorebi');
+  const dinner = ShopAvailability.findMenu(y, 'dinner');
+  assertEqual(ShopPrice.formatPerPersonTotal(5000, 2), '1名 5,000円（税込5,500円）× 2名＝合計 10,000円（税込11,000円）', '夜のおまかせ 2名');
+  assertEqual(ShopPrice.formatMenuFor(y, dinner, 2), '1名 5,000円（税込5,500円）× 2名＝合計 10,000円（税込11,000円）', 'お店の設定から');
+  assertEqual(ShopPrice.formatMenuFor(y, dinner, null), '1名 5,000円（税込5,500円）', '人数がまだのとき');
+  assertEqual(ShopPrice.formatMenuFor(y, ShopAvailability.findMenu(y, 'seat'), 3), '', '席のみ');
+  assertEqual(ShopPrice.formatMenuFor(k, ShopAvailability.findMenu(k, 'cut'), null), '4,000円（税込4,400円）', 'サロンは人数をかけない');
 });
 
 // ---------- そのほかの確かめ ----------

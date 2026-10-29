@@ -630,3 +630,45 @@ body.is-admin .page { max-width: 1040px; }
 }
 .shop-card h2 { margin-bottom: 4px; }
 .shop-card p:last-child { margin-bottom: 0; }
+
+/* 部の名前（昼のみ・夜のみ） */
+.badge {
+  display: inline-block;
+  font-size: 0.85rem;
+  padding: 0 8px;
+  border-radius: 4px;
+  background: var(--color-main-light);
+  color: var(--color-main-dark);
+  border: 1px solid var(--color-main);
+  vertical-align: middle;
+}
+
+/* 人数のボタン */
+.size-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(84px, 1fr)); gap: 8px; margin: 8px 0 12px; }
+.size-btn {
+  min-height: 56px;
+  border: 2px solid var(--color-main);
+  border-radius: var(--radius);
+  background: var(--color-surface);
+  color: var(--color-main-dark);
+  font-weight: bold;
+  font-size: 1.1rem;
+  cursor: pointer;
+}
+.size-btn[aria-checked="true"] { background: var(--color-main); color: #fff; }
+
+/* 選べない席の種類（赤で塗らない） */
+.choice:disabled { cursor: default; background: var(--color-none-bg); border-color: var(--color-none-bg); color: var(--color-none-text); }
+.choice:disabled::before { border-color: var(--color-none-text); background: transparent; }
+.choice:disabled .choice-title, .choice:disabled .choice-desc { color: var(--color-none-text); }
+
+.part-title { margin: 16px 0 4px; font-size: 1.1rem; }
+.plain-list { list-style: none; padding: 0; margin: 0 0 8px; }
+
+/* キャンセル料のお知らせ（確定の前に必ず目に入るように） */
+.fee-notice {
+  background: var(--color-notice-bg);
+  color: var(--color-notice-text);
+  border-radius: var(--radius);
+  padding: 12px 16px;
+}

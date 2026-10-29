@@ -3,6 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#1f3a5f">
   <meta name="description" content="但馬の小さなお店向けの予約ページの見本です。実際の予約は入りません。">
   <title>お店向け予約ページ（見本）</title>
   <link rel="stylesheet" href="css/style.css">
@@ -13,9 +14,16 @@
 
   <header class="site-header">
     <p class="site-name" id="site-name">お店向け予約ページ（見本）</p>
+    <!-- 見本のお店の切り替え -->
+    <nav class="mode-switch" id="shop-switch" aria-label="見本のお店の切り替え"></nav>
   </header>
 
-  <main class="page" id="app"></main>
+  <div class="layout">
+    <!-- 画面はここに js/app.js が描く -->
+    <main class="page" id="app"></main>
+    <!-- 選んだ内容と料金・時間（スマホは下に固定の帯、パソコンは右側） -->
+    <aside class="summary" id="summary" aria-label="選んだ内容" hidden></aside>
+  </div>
 
   <!-- 読みこむ順番に意味がある：お店の設定 → 計算 → 金額 → 書き方 → 保存 → 画面 -->
   <script src="js/shops.js"></script>
