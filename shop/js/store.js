@@ -133,5 +133,11 @@ const ShopStore = (function () {
     data.shops = data.shops.map((s) => (s.id === shop.id ? JSON.parse(JSON.stringify(shop)) : s));
   }
 
-  return { load, save, reset, seed, replaceShop, nextBookingNumber, addBooking, cancelBooking, addBlock, removeBlock };
+  // そのメニュー・席・担当を使っている予約の数（キャンセル済みは数えない）
+  // key：'menuId'（メニュー）か 'resourceId'（席・担当）
+  function countBookingsUsing(records, key, id) {
+    return records.bookings.filter((b) => b.status !== 'cancelled' && b[key] === id).length;
+  }
+
+  return { load, save, reset, seed, replaceShop, countBookingsUsing, nextBookingNumber, addBooking, cancelBooking, addBlock, removeBlock };
 })();

@@ -364,6 +364,18 @@ test('設定を置きかえても、予約は残る', () => {
   assertEqual(data.records.yuzuriha.bookings.length, count, '予約の件数');
 });
 
+test('そのメニュー・席・担当を使っている予約の数（キャンセル済みは数えない）', () => {
+  const shop = shopOf('komorebi');
+  const records = empty();
+  book(shop, records, { date: '2026-11-06', start: '10:00', menuId: 'cut', staffId: 's1' });
+  book(shop, records, { date: '2026-11-06', start: '12:00', menuId: 'cut', staffId: 's1' });
+  const c = book(shop, records, { date: '2026-11-06', start: '14:00', menuId: 'color', staffId: 's1' });
+  ShopStore.cancelBooking(records, c.id);
+  assertEqual(ShopStore.countBookingsUsing(records, 'menuId', 'cut'), 2, 'カット');
+  assertEqual(ShopStore.countBookingsUsing(records, 'menuId', 'color'), 0, 'カラー（キャンセル済み）');
+  assertEqual(ShopStore.countBookingsUsing(records, 'resourceId', 's1'), 2, '木村さん');
+});
+
 // ---------- 結果を画面に出す ----------
 
 const list = document.getElementById('results');

@@ -434,7 +434,12 @@ const ShopAdmin = (function () {
       const list = s[el.dataset.list];
       const i = Number(el.dataset.index);
       const name = list[i].name || '（名前なし）';
-      if (!window.confirm('「' + name + '」を削除しますか？（「保存する」を押すまでは、お客さん側は変わりません）')) return false;
+      // 予約が入っていれば、その件数を知らせる。削除はできる（予約は消さない）
+      const kind = { menus: 'メニュー', seats: '席', staff: '担当' }[el.dataset.list];
+      const count = ShopStore.countBookingsUsing(records(), el.dataset.list === 'menus' ? 'menuId' : 'resourceId', list[i].id);
+      const warn = count > 0 ? 'この' + kind + 'には予約が' + count + '件入っています。削除しても予約は消えません。\n' : '';
+      if (!window.confirm(warn + '「' + name + '」を削除しますか？（「保存する」を押すまでは、お客さん側は変わりません）')) return false;
+      if (count > 0) setMessage('「' + name + '」を削除しました（まだ保存していません）。この' + kind + 'の予約' + count + '件は残っています。', true);
       list.splice(i, 1);
       return true;
     }

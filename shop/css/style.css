@@ -752,3 +752,15 @@ legend { font-weight: bold; margin-bottom: 4px; padding: 0; }
   border: none;
   display: inline-block;
 }
+
+/* お店側の表は列が6つあるので、タブレットの縦（900px未満）でも1件ずつのカードにする */
+.btn-small { white-space: nowrap; }
+@media (max-width: 899px) {
+  .admin-table thead { display: none; }
+  .admin-table, .admin-table tbody, .admin-table tr, .admin-table td { display: block; width: 100%; }
+  .admin-table { background: transparent; }
+  .admin-table tr { border: 1px solid var(--color-border); border-radius: var(--radius); margin-bottom: 12px; padding: 4px 0; background: var(--color-surface); }
+  .admin-table td { border-bottom: none; padding: 4px 16px; display: grid; grid-template-columns: 6em 1fr; gap: 8px; }
+  .admin-table td::before { content: attr(data-label); font-weight: bold; color: var(--color-main-dark); }
+  .admin-table .btn-small { justify-self: start; }
+}
